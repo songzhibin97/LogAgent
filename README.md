@@ -4,7 +4,13 @@
 - 需要动态更改日志项提供热加载
 - 灾难处理机制以及特殊的异常处理
 - 全平台兼容 Windows/Linux/Mac
-
+```所需要技术栈
+go
+kafka
+etcd
+Elasticsearch
+kibana
+```
 
 
 #### 目录结构
