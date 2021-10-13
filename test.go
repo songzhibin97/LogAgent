@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"go.etcd.io/etcd/clientv3"
 	"time"
+
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 func main() {
