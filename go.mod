@@ -5,6 +5,8 @@ go 1.17
 require (
 	github.com/Shopify/sarama v1.30.0
 	github.com/hpcloud/tail v1.0.0
+	github.com/olivere/elastic/v7 v7.0.29
+	github.com/pkg/errors v0.9.1
 	go.etcd.io/etcd/api/v3 v3.5.0
 	go.etcd.io/etcd/client/v3 v3.5.0
 	gopkg.in/ini.v1 v1.63.2
@@ -27,7 +29,9 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.0 // indirect
