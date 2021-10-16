@@ -28,8 +28,20 @@ func InitKafka(address []string) (client sarama.Consumer, err error) {
 	return client, err
 }
 
-func Sentinel() {
-
+// Sentinel 哨兵
+func Sentinel(kafkaClient sarama.Consumer, esClient *elastic.Client, channel chan *model.KafkaMsgInfo) {
+	go func() {
+		all, err := GetAllTopic(kafkaClient)
+		if err != nil {
+			return
+		}
+		for _, topic := range all {
+			go GetMsgList(kafkaClient, topic, channel)
+		}
+	}()
+	go func() {
+		MsgToEs(esClient, channel)
+	}()
 }
 
 // GetAllTopic 获取所有topic
