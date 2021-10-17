@@ -117,3 +117,33 @@ func esSendMsg(client *elastic.Client, msg *model.KafkaMsgInfo) error {
 	}
 	return nil
 }
+
+// SendMsg 封装发送消息方法
+func SendMsg(client sarama.SyncProducer, topic string, message string) error {
+	msg := new(sarama.ProducerMessage)
+	msg.Topic = topic
+	msg.Value = sarama.StringEncoder(message)
+
+	// 发送消息
+	_, _, err := client.SendMessage(msg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// sendLog 消费消息
+func sendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
+	go func() {
+		defer client.Close()
+		for {
+			v := admin.GetKafkaChanMsg()
+			if v == nil {
+				return
+			}
+			if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
+				// todo log
+			}
+		}
+	}()
+}
