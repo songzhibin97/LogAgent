@@ -1,0 +1,25 @@
+Kafka:
+  Address: 127.0.0.1:9092
+
+Etcd:
+  Title: text
+  Address: 127.0.0.1:2379
+
+SystemConfig:
+  MaxKafkaBuffer: 10000
+  MaxWatchBuffer: 1000
+
+EsConfig:
+  Address: http://127.0.0.1:9200
+
+
+Zap:
+  level: 'info'
+  format: 'console'
+  prefix: '[agent]'
+  director: 'logs'
+  link-name: 'latest_log'
+  show-line: true
+  encode-level: 'LowercaseColorLevelEncoder'
+  stacktrace-key: 'disableStacktrace'
+  log-in-console: true
