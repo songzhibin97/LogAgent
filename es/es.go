@@ -3,5 +3,5 @@ package es
 import "github.com/olivere/elastic/v7"
 
 func InitEs(address string) (client *elastic.Client, err error) {
-	return elastic.NewClient(elastic.SetURL(address))
+	return elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(address))
 }

@@ -28,6 +28,22 @@ func InitKafka(address []string) (client sarama.Consumer, err error) {
 	return client, err
 }
 
+func InitKafkaProducer(address []string) (client sarama.SyncProducer, err error) {
+	config := sarama.NewConfig()
+	// 发送完数据需要leader和follow都确认
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	// 新选出一个partition 模式为随机分配
+	config.Producer.Partitioner = sarama.NewRandomPartitioner
+	// 成功交付的消息将在success channel返回
+	config.Producer.Return.Successes = true
+	// 连接kafka addr 支持多个地址
+	client, err = sarama.NewSyncProducer(address, config)
+	if err != nil {
+		return
+	}
+	return client, err
+}
+
 // Sentinel 哨兵
 func Sentinel(kafkaClient sarama.Consumer, esClient *elastic.Client, channel chan *model.KafkaMsgInfo) {
 	go func() {
@@ -125,15 +141,16 @@ func SendMsg(client sarama.SyncProducer, topic string, message string) error {
 	msg.Value = sarama.StringEncoder(message)
 
 	// 发送消息
-	_, _, err := client.SendMessage(msg)
+	pid, offset, err := client.SendMessage(msg)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("topic:%v,pid:%v offset:%v,value:%v\n", topic, pid, offset, message)
 	return nil
 }
 
-// sendLog 消费消息
-func sendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
+// SendLog 消费消息
+func SendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
 	go func() {
 		defer client.Close()
 		for {
@@ -142,7 +159,7 @@ func sendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
 				return
 			}
 			if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
-				// todo log
+				fmt.Println(err)
 			}
 		}
 	}()

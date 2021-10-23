@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	elastic "github.com/olivere/elastic/v7"
-	clientv3 "go.etcd.io/etcd/client/v3"
+	v3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/Shopify/sarama"
 )
@@ -25,15 +25,16 @@ var (
 var Config configs.Server
 
 var (
-	ManageMsg model.AdminMsg
+	ManageMsg *model.AdminMsg
 )
 
 // client
 
 var (
-	KafkaClient sarama.Consumer
-	EsClient    *elastic.Client
-	EtcdClient  *clientv3.Client
+	KafkaClient    sarama.Consumer
+	KafkaCProducer sarama.SyncProducer
+	EsClient       *elastic.Client
+	EtcdClient     *v3.Client
 )
 
 // channel

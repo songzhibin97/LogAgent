@@ -2,9 +2,11 @@ package etcd
 
 import (
 	"Songzhibin/LogAgent/local"
+	tailLog "Songzhibin/LogAgent/log"
 	"Songzhibin/LogAgent/model"
 	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -14,7 +16,7 @@ import (
 )
 
 // InitEtcdClient 初始化etcdClient并启动哨兵
-func InitEtcdClient(ctx context.Context, address []string, title string, wg *sync.WaitGroup) (client *v3.Client, err error) {
+func InitEtcdClient(ctx context.Context, address []string, title string) (client *v3.Client, err error) {
 	client, err = v3.New(v3.Config{
 		Endpoints:   address,          // 连接ip地址 localhost:2379
 		DialTimeout: 20 * time.Second, // 超时时间
@@ -25,15 +27,24 @@ func InitEtcdClient(ctx context.Context, address []string, title string, wg *syn
 	childCtx, cancel := context.WithCancel(ctx)
 	// 先尝试获取
 	resp, err := GetByEtcd(client, title)
-	if err == nil {
-		err = decodeConfig(resp, &local.EtcdPathInfoList, &local.Lock)
+	if err != nil {
+		panic(err)
 	}
-
-	wg.Wait()
+	err = decodeConfig(resp, &local.EtcdPathInfoList, &local.Lock)
+	if err != nil {
+		fmt.Println("decode err", err)
+	}
 	local.Lock.Lock()
 	for _, info := range local.EtcdPathInfoList {
-		// todo
-		_ = info
+		fmt.Println("info:", info)
+		_ctx, _cancel := context.WithCancel(childCtx)
+		pushModel := &model.TailInfo{
+			PathInfo: *info,
+		}
+		pushModel.SetCtx(_ctx)
+		pushModel.SetCancel(_cancel)
+		local.ManageMsg.PushWatchChanConfig(pushModel)
+		tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
 	}
 	local.Lock.Unlock()
 	// 启动哨兵监控这个key的变化
