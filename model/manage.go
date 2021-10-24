@@ -18,19 +18,19 @@ type AdminMsg struct {
 	Pool      goroutine.GGroup
 }
 
-func (a *AdminMsg) GetKafkaChanMsg() *LogMsg {
+func (a *AdminMsg) GetMsgChan() *LogMsg {
 	return <-a.kafkaChan
 }
 
-func (a *AdminMsg) PushKafkaChanMsg(msg *LogMsg) {
+func (a *AdminMsg) PushMsgChan(msg *LogMsg) {
 	a.kafkaChan <- msg
 }
 
-func (a *AdminMsg) GetWatchChanConfig() *TailInfo {
+func (a *AdminMsg) GetWatchChan() *TailInfo {
 	return <-a.watchChan
 }
 
-func (a *AdminMsg) PushWatchChanConfig(info *TailInfo) {
+func (a *AdminMsg) PushWatchChan(info *TailInfo) {
 	a.watchChan <- info
 }
 
