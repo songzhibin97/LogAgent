@@ -43,7 +43,7 @@ func InitEtcdClient(ctx context.Context, address []string, title string) (client
 		}
 		pushModel.SetCtx(_ctx)
 		pushModel.SetCancel(_cancel)
-		local.ManageMsg.PushWatchChanConfig(pushModel)
+		local.ManageMsg.PushWatchChan(pushModel)
 		tailLog.InitLog(local.ManageMsg, _ctx, info.Topic, info.Path)
 	}
 	local.Lock.Unlock()
@@ -133,7 +133,7 @@ func Sentinel(client *v3.Client, key string, ctx context.Context) {
 						_info, ok := local.ManageMsg.CheckKV(info.Topic)
 						if !ok {
 							// 原来不存在
-							local.ManageMsg.PushWatchChanConfig(model.CreateTailInfo(ctx, *info))
+							local.ManageMsg.PushWatchChan(model.CreateTailInfo(ctx, *info))
 							tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
 						} else {
 							// 删除 temporary _info.Topic

@@ -25,7 +25,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("kafka初始化完成:", local.Config.Kafka.Address)
-	kafka.SendLog(local.KafkaCProducer, local.ManageMsg)
+	kafka.SendLog(local.KafkaCProducer, local.ManageMsg, local.Config.System.MaxKafkaBuffer)
 
 	local.EtcdClient, err = etcd.InitEtcdClient(ctx, local.Config.Etcd.Address, local.Config.Etcd.Title)
 	if err != nil {

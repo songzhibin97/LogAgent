@@ -8,6 +8,7 @@ Etcd:
 SystemConfig:
   MaxKafkaBuffer: 10000
   MaxWatchBuffer: 1000
+  MaxSentinel: 10
 
 EsConfig:
   Address: http://127.0.0.1:9200

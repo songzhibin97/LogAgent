@@ -135,19 +135,21 @@ func SendMsg(client sarama.SyncProducer, topic string, message string) error {
 }
 
 // SendLog 消费消息
-func SendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
-	go func() {
-		defer client.Close()
-		for {
-			v := admin.GetKafkaChanMsg()
-			if v == nil {
-				return
-			}
-			admin.AddTask(func() {
-				if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
-					fmt.Println(err)
+func SendLog(client sarama.SyncProducer, admin model.IAdminMsg, n int) {
+	for i := 0; i < n; i++ {
+		go func() {
+			defer client.Close()
+			for {
+				v := admin.GetMsgChan()
+				if v == nil {
+					return
 				}
-			})
-		}
-	}()
+				admin.AddTask(func() {
+					if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
+						fmt.Println(err)
+					}
+				})
+			}
+		}()
+	}
 }

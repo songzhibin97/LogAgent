@@ -43,7 +43,9 @@ func main() {
 		}
 	}
 	// 开启消费者
-	go kafka.MsgToEs(local.EsClient, local.KafkaMsgChannel)
+	for i := 0; i < local.Config.System.MaxSentinel; i++ {
+		go kafka.MsgToEs(local.EsClient, local.KafkaMsgChannel)
+	}
 
 	// 监听信号
 	quit := make(chan os.Signal, 1) // 创建一个接收信号的通道

@@ -50,7 +50,7 @@ func ReadLog(admin model.IAdminMsg, ctx context.Context, tails *tail.Tail, topic
 			if len(lines.Text) == 0 || len(strings.TrimSpace(lines.Text)) == 0 {
 				continue
 			}
-			admin.PushKafkaChanMsg(&model.LogMsg{
+			admin.PushMsgChan(&model.LogMsg{
 				Topic:   topic,
 				Message: lines,
 			})
