@@ -2,8 +2,8 @@ package etcd
 
 import (
 	"Songzhibin/LogAgent/local"
-	tailLog "Songzhibin/LogAgent/log"
 	"Songzhibin/LogAgent/model"
+	tailLog "Songzhibin/LogAgent/tailLog"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -44,7 +44,7 @@ func InitEtcdClient(ctx context.Context, address []string, title string) (client
 		pushModel.SetCtx(_ctx)
 		pushModel.SetCancel(_cancel)
 		local.ManageMsg.PushWatchChanConfig(pushModel)
-		tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
+		tailLog.InitLog(local.ManageMsg, _ctx, info.Topic, info.Path)
 	}
 	local.Lock.Unlock()
 	// 启动哨兵监控这个key的变化
@@ -100,9 +100,10 @@ func Sentinel(client *v3.Client, key string, ctx context.Context) {
 	eventChannel := client.Watch(ctx, key)
 	for event := range eventChannel {
 		for _, _event := range event.Events {
-			configList := local.ManageMsg.AllKV()
+
 			switch _event.Type {
 			case mvccpb.PUT:
+				configList := local.ManageMsg.AllKV()
 				if len(_event.Kv.Value) == 0 {
 					// 循环  logMag/adminMsg/aMsg -> []map{}
 					// configList -> []*kv
@@ -126,30 +127,36 @@ func Sentinel(client *v3.Client, key string, ctx context.Context) {
 					}
 					// 找差集
 					for _, info := range temporaryList {
+						if info.Topic == "" || info.Path == "" {
+							continue
+						}
 						_info, ok := local.ManageMsg.CheckKV(info.Topic)
 						if !ok {
 							// 原来不存在
 							local.ManageMsg.PushWatchChanConfig(model.CreateTailInfo(ctx, *info))
-							// todo go func init
+							tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
 						} else {
 							// 删除 temporary _info.Topic
 							delete(temporary, info.Topic)
 							// 判断 path 是否一致
-							if info.Path == _info.Path {
+							if ok && (info.Path == _info.Path) {
 								continue
 							}
 							// 两边path不一致,需要删除对象,重新创建
+							_info.Cancel()
 							local.ManageMsg.DelMapKV(info.Topic)
 							local.ManageMsg.AddMapKV(info.Topic, model.CreateTailInfo(ctx, *info))
-							// todo go func init
+							tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
 						}
 					}
 					for _, kv := range temporary {
 						// 多余的删除掉
 						kv.Value.Cancel()
+						local.ManageMsg.DelMapKV(kv.Value.Topic)
 					}
 				}
 			case mvccpb.DELETE:
+				configList := local.ManageMsg.AllKV()
 				for _, kv := range configList {
 					// 停止服务并且删除local map
 					kv.Value.Cancel()

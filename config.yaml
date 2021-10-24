@@ -1,5 +1,5 @@
 Kafka:
-  Address: 127.0.0.1:9092
+  Address: 192.168.8.115:9092
 
 Etcd:
   Title: text

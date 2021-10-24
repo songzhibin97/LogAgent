@@ -1,6 +1,12 @@
 package model
 
-import "sync"
+import (
+	"context"
+	"sync"
+	"time"
+
+	"github.com/songzhibin97/gkit/goroutine"
+)
 
 // AdminMsg 管理结构
 type AdminMsg struct {
@@ -9,6 +15,7 @@ type AdminMsg struct {
 	msgMap    map[string]*TailInfo
 	kafkaChan chan *LogMsg
 	watchChan chan *TailInfo
+	Pool      goroutine.GGroup
 }
 
 func (a *AdminMsg) GetKafkaChanMsg() *LogMsg {
@@ -81,11 +88,16 @@ func (a *AdminMsg) goroutineGetWatchChan() {
 	}()
 }
 
-func InitManage(maxKafkaChan, maxWatchChan int) *AdminMsg {
+func (a *AdminMsg) AddTask(f func()) bool {
+	return a.Pool.AddTask(f)
+}
+
+func InitManage(ctx context.Context, maxKafkaChan, maxWatchChan int) *AdminMsg {
 	ret := &AdminMsg{
 		msgMap:    make(map[string]*TailInfo),
 		kafkaChan: make(chan *LogMsg, maxKafkaChan),
 		watchChan: make(chan *TailInfo, maxWatchChan),
+		Pool:      goroutine.NewGoroutine(ctx, goroutine.SetMax(int64(maxKafkaChan)), goroutine.SetStopTimeout(3*time.Second)),
 	}
 	ret.goroutineGetWatchChan()
 	return ret

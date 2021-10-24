@@ -121,16 +121,17 @@ func MsgToEs(client *elastic.Client, channel chan *model.KafkaMsgInfo) error {
 		if err := esSendMsg(client, info); err != nil {
 			fmt.Printf("MsgToEs err %v\n", err)
 		}
+		fmt.Println("消费至es :", info)
 	}
 	return nil
 }
 
 func esSendMsg(client *elastic.Client, msg *model.KafkaMsgInfo) error {
-	// todo
-	_, err := client.Index().Index(msg.Topic).BodyJson(msg).Do(context.Background())
+	put1, err := client.Index().Index(msg.Topic).BodyJson(msg).Do(context.Background())
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Indexed user %s to index %s, type %s\n", put1.Id, put1.Index, put1.Type)
 	return nil
 }
 
@@ -158,9 +159,11 @@ func SendLog(client sarama.SyncProducer, admin model.IAdminMsg) {
 			if v == nil {
 				return
 			}
-			if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
-				fmt.Println(err)
-			}
+			admin.AddTask(func() {
+				if err := SendMsg(client, v.Topic, v.Message.Text); err != nil {
+					fmt.Println(err)
+				}
+			})
 		}
 	}()
 }

@@ -21,4 +21,5 @@ type IAdminMsg interface {
 	CheckKV(string) (*TailInfo, bool) // 查找msgMap中的 Map key:value
 	AllKV() (sliceKv []*Kv)
 	goroutineGetWatchChan()
+	AddTask(f func()) bool
 }

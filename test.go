@@ -22,7 +22,7 @@ func main() {
 	defer cli.Close()
 	// put
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	jsonString := `[{"topic":"mysql","path":"/Users/songzhibin/go/src/Songzhibin/LogAgent/serverRun/mysql.log"}]`
+	jsonString := `[{"topic":"mysql","path":"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log"}]`
 	_, err = cli.Put(ctx, "text", jsonString)
 	cancel()
 	if err != nil {

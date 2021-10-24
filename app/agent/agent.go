@@ -17,7 +17,8 @@ func main() {
 	// 初始化配置
 	boot.Initialize()
 
-	local.ManageMsg = model.InitManage(local.Config.System.MaxKafkaBuffer, local.Config.System.MaxWatchBuffer)
+	ctx, cancel := context.WithCancel(context.Background())
+	local.ManageMsg = model.InitManage(ctx, local.Config.System.MaxKafkaBuffer, local.Config.System.MaxWatchBuffer)
 	var err error
 	local.KafkaCProducer, err = kafka.InitKafkaProducer(local.Config.Kafka.Address)
 	if err != nil {
@@ -25,7 +26,7 @@ func main() {
 	}
 	fmt.Println("kafka初始化完成:", local.Config.Kafka.Address)
 	kafka.SendLog(local.KafkaCProducer, local.ManageMsg)
-	ctx, cancel := context.WithCancel(context.Background())
+
 	local.EtcdClient, err = etcd.InitEtcdClient(ctx, local.Config.Etcd.Address, local.Config.Etcd.Title)
 	if err != nil {
 		panic(err)
