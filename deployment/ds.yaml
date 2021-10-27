@@ -15,13 +15,15 @@ spec:
         app: log-agent
     spec:
       containers:
-       -  image: # todo  your image name
+        - image: # todo logAgent 镜像
           imagePullPolicy: IfNotPresent
           name: log-agent
           volumeMounts:
-            - mountPath:   # todo your logs path
+            - mountPath:   # todo 挂载应用日志
               name: docker
               readOnly: true
+            - name: config
+              mountPath: /
       restartPolicy: Always
       tolerations:
         - effect: NoSchedule
@@ -33,7 +35,7 @@ spec:
           value: "true"
       volumes:
         - configMap:
-            name: # todo  your configmap name
+            name: config.yaml
           name: config
         - hostPath:
             path: /var/lib/docker/containers

@@ -14,11 +14,13 @@ spec:
     spec:
       containers:
         - name: app
-          image: #todo 应用image
+          image: # todo LogAgent 镜像
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: # todo 应用日志输出路径
               name: logpath
+            - mountPath: /
+              name: config
         - name: log-agent
           image: #todo 应用image
           imagePullPolicy: IfNotPresent
@@ -29,6 +31,10 @@ spec:
       volumes:
         - name: logpath
           emptyDir: {}
+        - name: config
+          configMap:
+            name: config.yaml
   selector:
     matchLabels:
       app: log-collect-demo
+
