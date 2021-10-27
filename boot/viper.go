@@ -39,22 +39,24 @@ func (v *_viper) Initialize(path ...string) {
 		}
 		v.path = ConfigFile
 		fmt.Println(`您正在使用config的默认值, config的路径为: `, v.path)
-		var _v = viper.New()
-		_v.SetConfigFile(v.path)
-		if v.err = _v.ReadInConfig(); v.err != nil {
-			panic(fmt.Sprintf(`读取config.yaml文件失败, err: %v`, v.err))
-		}
-		_v.WatchConfig()
-
-		_v.OnConfigChange(func(e fsnotify.Event) {
-			fmt.Println(`配置文件已修改并更新,文件为: `, e.Name)
-			if v.err = _v.Unmarshal(&local.Config); v.err != nil {
-				fmt.Println(v.err)
-			}
-		})
-		if v.err = _v.Unmarshal(&local.Config); v.err != nil {
-			fmt.Println(`Json 序列化数据失败, err :`, v.err)
-		}
-		local.Viper = _v
+	} else {
+		v.path = path[0]
 	}
+	var _v = viper.New()
+	_v.SetConfigFile(v.path)
+	if v.err = _v.ReadInConfig(); v.err != nil {
+		panic(fmt.Sprintf(`读取config.yaml文件失败, err: %v`, v.err))
+	}
+	_v.WatchConfig()
+
+	_v.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println(`配置文件已修改并更新,文件为: `, e.Name)
+		if v.err = _v.Unmarshal(&local.Config); v.err != nil {
+			fmt.Println(v.err)
+		}
+	})
+	if v.err = _v.Unmarshal(&local.Config); v.err != nil {
+		fmt.Println(`Json 序列化数据失败, err :`, v.err)
+	}
+	local.Viper = _v
 }

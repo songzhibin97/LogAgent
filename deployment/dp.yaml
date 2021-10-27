@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-collect-demo
+  labels:
+    app: log-collect-demo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: log-collect-demo
+      labels:
+        app: log-collect-demo
+    spec:
+      containers:
+        - name: app
+          image: #todo 应用image
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: # todo 应用日志输出路径
+              name: logpath
+        - name: log-agent
+          image: #todo 应用image
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: # todo 定义logagent采集的路径
+              name: logpath   # 名称和上面保持一致
+      restartPolicy: Always
+      volumes:
+        - name: logpath
+          emptyDir: {}
+  selector:
+    matchLabels:
+      app: log-collect-demo

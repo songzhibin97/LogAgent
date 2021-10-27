@@ -92,6 +92,11 @@ func (a *AdminMsg) AddTask(f func()) bool {
 	return a.Pool.AddTask(f)
 }
 
+func (a *AdminMsg) Close() {
+	close(a.kafkaChan)
+	close(a.watchChan)
+}
+
 func InitManage(ctx context.Context, maxKafkaChan, maxWatchChan int) *AdminMsg {
 	ret := &AdminMsg{
 		msgMap:    make(map[string]*TailInfo),

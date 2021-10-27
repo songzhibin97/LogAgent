@@ -17,10 +17,7 @@ import (
 
 // InitEtcdClient 初始化etcdClient并启动哨兵
 func InitEtcdClient(ctx context.Context, address []string, title string) (client *v3.Client, err error) {
-	client, err = v3.New(v3.Config{
-		Endpoints:   address,          // 连接ip地址 localhost:2379
-		DialTimeout: 20 * time.Second, // 超时时间
-	})
+	client, err = ConnectETCD(address)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +97,6 @@ func Sentinel(client *v3.Client, key string, ctx context.Context) {
 	eventChannel := client.Watch(ctx, key)
 	for event := range eventChannel {
 		for _, _event := range event.Events {
-
 			switch _event.Type {
 			case mvccpb.PUT:
 				configList := local.ManageMsg.AllKV()
@@ -133,7 +129,7 @@ func Sentinel(client *v3.Client, key string, ctx context.Context) {
 						_info, ok := local.ManageMsg.CheckKV(info.Topic)
 						if !ok {
 							// 原来不存在
-							local.ManageMsg.PushWatchChan(model.CreateTailInfo(ctx, *info))
+							local.ManageMsg.AddMapKV(info.Topic, model.CreateTailInfo(ctx, *info))
 							tailLog.InitLog(local.ManageMsg, ctx, info.Topic, info.Path)
 						} else {
 							// 删除 temporary _info.Topic
@@ -187,4 +183,23 @@ func decodeConfig(resp *v3.GetResponse, obj interface{}, wg *sync.RWMutex) error
 		}
 	}
 	return nil
+}
+
+func ConnectETCD(address []string) (client *v3.Client, err error) {
+	client, err = v3.New(v3.Config{
+		Endpoints:   address,          // 连接ip地址 localhost:2379
+		DialTimeout: 20 * time.Second, // 超时时间
+	})
+	return client, err
+}
+
+// SetValue 设置配置中心值
+func SetValue(client *v3.Client, topic string, value string) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	_, err := client.Put(ctx, topic, value)
+	cancel()
+	if err != nil {
+		fmt.Printf("put to etcd failed, err:%v\n", err)
+		return
+	}
 }

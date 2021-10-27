@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: log-agent
+  name: log-agent
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: log-agent
+  template:
+    metadata:
+      labels:
+        app: log-agent
+    spec:
+      containers:
+       -  image: # todo  your image name
+          imagePullPolicy: IfNotPresent
+          name: log-agent
+          volumeMounts:
+            - mountPath:   # todo your logs path
+              name: docker
+              readOnly: true
+      restartPolicy: Always
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - effect: NoSchedule
+          key: ingress
+          operator: Equal
+          value: "true"
+      volumes:
+        - configMap:
+            name: # todo  your configmap name
+          name: config
+        - hostPath:
+            path: /var/lib/docker/containers
+            type: ""
+          name: docker
+
+
+

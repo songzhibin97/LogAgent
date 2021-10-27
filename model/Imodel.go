@@ -22,4 +22,5 @@ type IAdminMsg interface {
 	AllKV() (sliceKv []*Kv)           // 获取所有kv
 	goroutineGetWatchChan()           // 后台哨兵
 	AddTask(f func()) bool            // 异步任务队列
+	Close()
 }
