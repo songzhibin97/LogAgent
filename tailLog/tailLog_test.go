@@ -54,4 +54,6 @@ func writeLog(cancel context.CancelFunc, path string, n int64) {
 			log.Fatal(err)
 		}
 	}
+	time.Sleep(time.Second)
+	local.ManageMsg.Close()
 }
