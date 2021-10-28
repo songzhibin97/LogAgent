@@ -34,22 +34,21 @@ func TestInitEtcdClient(t *testing.T) {
 	SetValue(client, local.Config.Etcd.Title, "[{\"topic\":\"mysql\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"}]")
 
 	time.Sleep(10 * time.Second)
-	//assert.Len(t, local.ManageMsg.AllKV(), 1)
-	SetValue(client, local.Config.Etcd.Title, "")
-
-	time.Sleep(10 * time.Second)
-	//assert.Len(t, local.ManageMsg.AllKV(), 0)
-	SetValue(client, local.Config.Etcd.Title, "[{\"topic\":\"mysql\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"},{\"topic\":\"es\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"}]")
-
-	time.Sleep(10 * time.Second)
-	//assert.Len(t, local.ManageMsg.AllKV(), 2)
-	SetValue(client, local.Config.Etcd.Title, "[{\"topic\":\"mysql\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"}]")
-
-	time.Sleep(10 * time.Second)
-	//assert.Len(t, local.ManageMsg.AllKV(), 1)
+	assert.Len(t, local.ManageMsg.AllKV(), 1)
 	SetValue(client, local.Config.Etcd.Title, "")
 
 	time.Sleep(10 * time.Second)
 	assert.Len(t, local.ManageMsg.AllKV(), 0)
+	SetValue(client, local.Config.Etcd.Title, "[{\"topic\":\"mysql\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"},{\"topic\":\"es\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"}]")
 
+	time.Sleep(10 * time.Second)
+	assert.Len(t, local.ManageMsg.AllKV(), 2)
+	SetValue(client, local.Config.Etcd.Title, "[{\"topic\":\"mysql\",\"path\":\"/Users/songzhibin/go/src/Songzhibin/LogAgent/logs/log\"}]")
+
+	time.Sleep(10 * time.Second)
+	assert.Len(t, local.ManageMsg.AllKV(), 1)
+	SetValue(client, local.Config.Etcd.Title, "")
+
+	time.Sleep(10 * time.Second)
+	assert.Len(t, local.ManageMsg.AllKV(), 0)
 }
