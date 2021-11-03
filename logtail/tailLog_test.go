@@ -1,4 +1,4 @@
-package tailLog
+package logtail
 
 import (
 	"Songzhibin/LogAgent/boot"
