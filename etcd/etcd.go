@@ -2,8 +2,8 @@ package etcd
 
 import (
 	"Songzhibin/LogAgent/local"
+	tailLog "Songzhibin/LogAgent/logtail"
 	"Songzhibin/LogAgent/model"
-	tailLog "Songzhibin/LogAgent/tailLog"
 	"context"
 	"encoding/json"
 	"fmt"
